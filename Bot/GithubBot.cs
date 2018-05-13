@@ -22,13 +22,15 @@ namespace GithubCommentBot.Bot
 
         public async void Start()
         {
-            _telegramClient.OnMessage += BotOnMessageReceived;
             var me = await _telegramClient.GetMeAsync();
             Console.WriteLine($"Hello! My name is {me.FirstName}");
+            _telegramClient.StartReceiving();
+            _telegramClient.OnMessage += BotOnMessageReceived;
         }
 
         public void Stop()
         {
+            _telegramClient.StopReceiving();
             _telegramClient.OnMessage -= BotOnMessageReceived;
         }
 
