@@ -27,7 +27,7 @@ namespace GithubCommentBot.Controllers
             {
                 var json = reader.ReadToEnd();
                 var prWebHook = ParsePrWebHook(json);
-                if(prWebHook != null)
+                if(prWebHook != null && prWebHook.Comment != null && prWebHook.PullRequest != null)
                 {
                     await _bot.AddHook(prWebHook);
                 }
