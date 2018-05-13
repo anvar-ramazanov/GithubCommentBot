@@ -20,9 +20,11 @@ namespace GithubCommentBot.Bot
             _telegramUsersWithInvite = new List<string>();
         }
 
-        public void Start()
+        public async void Start()
         {
             _telegramClient.OnMessage += BotOnMessageReceived;
+            var me = await _telegramClient.GetMeAsync();
+            System.Console.WriteLine($"Hello! My name is {me.FirstName}");
         }
 
         public void Stop()
