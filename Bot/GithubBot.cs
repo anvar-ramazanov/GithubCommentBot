@@ -24,7 +24,7 @@ namespace GithubCommentBot.Bot
         {
             _telegramClient.OnMessage += BotOnMessageReceived;
             var me = await _telegramClient.GetMeAsync();
-            System.Console.WriteLine($"Hello! My name is {me.FirstName}");
+            Console.WriteLine($"Hello! My name is {me.FirstName}");
         }
 
         public void Stop()
@@ -34,7 +34,8 @@ namespace GithubCommentBot.Bot
 
         private async void BotOnMessageReceived(object sender, MessageEventArgs e)
         {
-            if (e.Message.Text.ToUpper() == "/start")
+            Console.WriteLine($"{e.Message.Text}");
+            if (e.Message.Text == "/start")
             {
                 if (!_githubToTelegramUsers.ContainsValue(e.Message.Chat.Username))
                 {
