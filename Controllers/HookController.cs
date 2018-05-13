@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.IO;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using GithubCommentBot.Bot;
 using GithubCommentBot.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -17,9 +20,36 @@ namespace GithubCommentBot.Controllers
         }
 
         [HttpPost]
-        public async void Post([FromBody] PrWebHook comment)
+        public async void Post()
         {
-            await _bot.AddHook(comment);
+            var body = HttpContext.Request.Body;
+            using (var reader = new StreamReader(body))
+            {
+                var json = reader.ReadToEnd();
+                var prWebHook = ParsePrWebHook(json);
+                if(prWebHook != null)
+                {
+                    await _bot.AddHook(prWebHook);
+                }
+                else
+                {
+                    Console.WriteLine("Unknown webhook");
+                }
+            }
+        }
+
+        public static PrWebHook ParsePrWebHook(string json)
+        {
+            PrWebHook result;
+            try
+            {
+                result = JsonConvert.DeserializeObject<PrWebHook>(json);
+            }
+            catch (JsonSerializationException ex)
+            {
+                result = null;
+            }
+            return result;
         }
 
         private readonly IGithubBot _bot;
