@@ -36,7 +36,7 @@ namespace GithubCommentBot.Controllers
                 }
                 else
                 {
-                    Console.WriteLine("Unknown webhook");
+                    _logger.LogWarning("Unknown webhook");
                 }
             }
         }
