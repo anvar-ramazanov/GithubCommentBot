@@ -17,7 +17,7 @@ namespace GithubCommentBot.Bot
             _logger = logger;
             var apiToken = Environment.GetEnvironmentVariable("API_TOKEN");
             _logger.LogInformation($"TelegramBot api: {apiToken}");
-            _githubToTelegramUsers = new Dictionary<string, string>();
+            _botUsers = new Dictionary<string, BotUser>();
             _prUsers = new Dictionary<long, List<string>>();
             _telegramClient = new TelegramBotClient(apiToken);
             _telegramUsersWithInvite = new List<string>();
@@ -42,29 +42,28 @@ namespace GithubCommentBot.Bot
             _logger.LogInformation($"{e.Message.Text}");
             if (e.Message.Text == "/start")
             {
-                if (!_githubToTelegramUsers.ContainsValue(e.Message.Chat.Username))
+                if (!IsRegistered(e.Message.Chat.Id))
                 {
                     _telegramUsersWithInvite.Add(e.Message.Chat.Username);
-                    var text = "What is you name in github?";
-                    await _telegramClient.SendTextMessageAsync(e.Message.Chat.Id, text);
-                    _logger.LogInformation($"Send message to '{e.Message.Chat.Id}' Text =  '{text}'");
+                    await SendMessage(e.Message.Chat.Id, "What is you name in github?");
                 }
                 else
                 {
-                    var text = "You already registered";
-                    await _telegramClient.SendTextMessageAsync(e.Message.Chat.Id, text);
-                    _logger.LogInformation($"Send message to '{e.Message.Chat.Id}' Text = '{text}'");
+                    await SendMessage(e.Message.Chat.Id, "You already registered");
                 }
             }
             else
             {
                 if (_telegramUsersWithInvite.Contains(e.Message.Chat.Username))
                 {
-                    var text = $"You registered with githubname: {e.Message.Text}";
-                    _githubToTelegramUsers.Add(e.Message.Text, e.Message.Chat.Username);
-                    await _telegramClient.SendTextMessageAsync(e.Message.Chat.Id, text);
-                    _logger.LogInformation($"Send message to '{e.Message.Chat.Id}' Text = '{text}'");
-
+                    var githubName = e.Message.Text;
+                    _botUsers.Add(githubName, new BotUser()
+                    {
+                        GithubName = githubName,
+                        ChatId = e.Message.Chat.Id,
+                        TelegramName = e.Message.Chat.Username,
+                    });
+                    await SendMessage(e.Message.Chat.Id, $"You registered with githubname: {e.Message.Text}");
                 }
             }
         }
@@ -92,20 +91,31 @@ namespace GithubCommentBot.Bot
                 users.Add(comment.PullRequest.User.Login);
             }
 
-            var telegramUsers = users
-                .Where(_ => _githubToTelegramUsers.ContainsKey(_))
-                .Select(_ => _githubToTelegramUsers[_])
+            var telegramChatIds = users
+                .Where(_ => _botUsers.ContainsKey(_))
+                .Select(_ => _botUsers[_].ChatId)
                 .ToArray();
 
-            foreach (var telegramUser in telegramUsers)
+            foreach (var telegramChatId in telegramChatIds)
             {
                 var message = $"{comment.PullRequest.Body}\r\n{comment.Comment.User.Login} : {comment.Comment.Body}";
-                await _telegramClient.SendTextMessageAsync(new ChatId(telegramUser), message);
+                await SendMessage(telegramChatId, message);
             }
         }
 
+        private bool IsRegistered(long chatId)
+        {
+            return _botUsers.FirstOrDefault(_ => _.Value.ChatId == chatId).Value != null;
+        }
+
+        private async Task SendMessage(long chatId, string text)
+        {
+            await _telegramClient.SendTextMessageAsync(chatId, text);
+            _logger.LogInformation($"Send message to '{chatId}' Text = '{text}'");
+        }
+
         private readonly List<string> _telegramUsersWithInvite;
-        private readonly Dictionary<string, string> _githubToTelegramUsers;
+        private readonly Dictionary<string, BotUser> _botUsers;
         private readonly Dictionary<long, List<string>> _prUsers;
         private readonly TelegramBotClient _telegramClient;
         private ILogger<GithubBot> _logger;
