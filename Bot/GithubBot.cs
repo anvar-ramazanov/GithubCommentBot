@@ -98,7 +98,11 @@ namespace GithubCommentBot.Bot
 
             foreach (var telegramChatId in telegramChatIds)
             {
-                var message = $"{comment.PullRequest.Body}\r\n{comment.Comment.User.Login} : {comment.Comment.Body}";
+                var userName = _botUsers.ContainsKey(comment.Comment.User.Login)
+                    ? _botUsers[comment.Comment.User.Login].TelegramName
+                    : comment.Comment.User.Login;
+
+                var message = $"Repo: {comment.Repository?.Name}\r\nPR: {comment.PullRequest.Title}\r\n{userName}: {comment.Comment.Body}";
                 await SendMessage(telegramChatId, message);
             }
         }
