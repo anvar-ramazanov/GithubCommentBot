@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using GithubCommentBot.Bot;
+﻿using GithubCommentBot.Bot;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace GithubCommentBot
 {
@@ -25,7 +19,7 @@ namespace GithubCommentBot
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
-            services.AddSingleton<IGithubBot>(new GithubBot());
+            services.AddSingleton<IGithubBot, GithubBot>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
