@@ -22,7 +22,7 @@ namespace GithubCommentBot.Controllers
         }
 
         [HttpPost]
-        public async void Post()
+        public async Task<IActionResult> Post()
         {
             var body = HttpContext.Request.Body;
             using (var reader = new StreamReader(body))
@@ -32,12 +32,14 @@ namespace GithubCommentBot.Controllers
                 var prWebHook = ParsePrWebHook(json);
                 if(prWebHook != null && prWebHook.Comment != null && prWebHook.PullRequest != null)
                 {
+                    _logger.LogInformation($"Hook is pr comment");
                     await _bot.AddHook(prWebHook);
                 }
                 else
                 {
                     _logger.LogWarning("Unknown webhook");
                 }
+                return StatusCode(200);
             }
         }
 
