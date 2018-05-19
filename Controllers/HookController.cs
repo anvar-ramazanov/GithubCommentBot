@@ -8,15 +8,17 @@ using Newtonsoft.Json.Linq;
 using GithubCommentBot.Bot;
 using GithubCommentBot.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace GithubCommentBot.Controllers
 {
     [Route("api/[controller]")]
     public class HookController : Controller
     {
-        public HookController(IGithubBot bot)
+        public HookController(IGithubBot bot, ILogger<HookController> logger)
         {
             _bot = bot;
+            _logger = logger;
         }
 
         [HttpPost]
@@ -26,6 +28,7 @@ namespace GithubCommentBot.Controllers
             using (var reader = new StreamReader(body))
             {
                 var json = reader.ReadToEnd();
+                _logger.LogInformation($"Catch hook: {json}");
                 var prWebHook = ParsePrWebHook(json);
                 if(prWebHook != null && prWebHook.Comment != null && prWebHook.PullRequest != null)
                 {
@@ -53,5 +56,6 @@ namespace GithubCommentBot.Controllers
         }
 
         private readonly IGithubBot _bot;
+        private readonly ILogger<HookController> _logger;
     }
 }
