@@ -33,7 +33,7 @@ namespace GithubCommentBot.Controllers
                 if(prWebHook != null && prWebHook.Comment != null && prWebHook.PullRequest != null)
                 {
                     _logger.LogInformation($"Hook is pr comment");
-                    if (prWebHook.Action == "submitted")
+                    if (prWebHook.Action == "created" || prWebHook.Action == "updated")
                     {
                         await _bot.AddHook(prWebHook);
                     }

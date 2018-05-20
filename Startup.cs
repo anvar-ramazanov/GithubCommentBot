@@ -1,4 +1,5 @@
 ﻿using GithubCommentBot.Bot;
+using GithubCommentBot.Store;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -19,6 +20,7 @@ namespace GithubCommentBot
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
+            services.AddSingleton<IStore, StoreImpl>();
             services.AddSingleton<IGithubBot, GithubBot>();
         }
 

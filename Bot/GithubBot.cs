@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using GithubCommentBot.Models;
+using GithubCommentBot.Store;
 using Microsoft.Extensions.Logging;
 using Telegram.Bot;
 using Telegram.Bot.Args;
@@ -11,15 +12,15 @@ namespace GithubCommentBot.Bot
 {
     public class GithubBot : IGithubBot
     {
-        public GithubBot(ILogger<GithubBot> logger)
+        public GithubBot(ILogger<GithubBot> logger, IStore store)
         {
             _logger = logger;
             var apiToken = Environment.GetEnvironmentVariable("API_TOKEN");
             _logger.LogInformation($"TelegramBot api: {apiToken}");
-            _botUsers = new Dictionary<string, BotUser>();
             _prUsers = new Dictionary<long, List<string>>();
             _telegramClient = new TelegramBotClient(apiToken);
             _telegramUsersWithInvite = new List<string>();
+            _store = store;
         }
 
         public async void Start()
@@ -41,7 +42,7 @@ namespace GithubCommentBot.Bot
             _logger.LogInformation($"{e.Message.Text}");
             if (e.Message.Text == "/start")
             {
-                if (!IsRegistered(e.Message.Chat.Id))
+                if (!_store.IsRegistered(e.Message.Chat.Id))
                 {
                     _telegramUsersWithInvite.Add(e.Message.Chat.Username);
                     await SendMessage(e.Message.Chat.Id, "What is you name in github?");
@@ -56,7 +57,7 @@ namespace GithubCommentBot.Bot
                 if (_telegramUsersWithInvite.Contains(e.Message.Chat.Username))
                 {
                     var githubName = e.Message.Text;
-                    _botUsers.Add(githubName, new BotUser()
+                    await _store.AddUser(new BotUser()
                     {
                         GithubName = githubName,
                         ChatId = e.Message.Chat.Id,
@@ -91,14 +92,14 @@ namespace GithubCommentBot.Bot
             }
 
             var telegramChatIds = users
-                .Where(_ => _botUsers.ContainsKey(_))
-                .Select(_ => _botUsers[_].ChatId)
+                .Where(_ => _store.HaveUser(_))
+                .Select(_ => _store.GetUser(_).ChatId)
                 .ToArray();
 
             foreach (var telegramChatId in telegramChatIds)
             {
-                var userName = _botUsers.ContainsKey(comment.Comment.User.Login)
-                    ? _botUsers[comment.Comment.User.Login].TelegramName
+                var userName = _store.HaveUser(comment.Comment.User.Login)
+                    ? _store.GetUser(comment.Comment.User.Login).TelegramName
                     : comment.Comment.User.Login;
 
                 var actionString = comment.Action == "created"
@@ -110,11 +111,6 @@ namespace GithubCommentBot.Bot
             }
         }
 
-        private bool IsRegistered(long chatId)
-        {
-            return _botUsers.FirstOrDefault(_ => _.Value.ChatId == chatId).Value != null;
-        }
-
         private async Task SendMessage(long chatId, string text)
         {
             await _telegramClient.SendTextMessageAsync(chatId, text);
@@ -122,7 +118,7 @@ namespace GithubCommentBot.Bot
         }
 
         private readonly List<string> _telegramUsersWithInvite;
-        private readonly Dictionary<string, BotUser> _botUsers;
+        private readonly IStore _store;
         private readonly Dictionary<long, List<string>> _prUsers;
         private readonly TelegramBotClient _telegramClient;
         private ILogger<GithubBot> _logger;
