@@ -6,7 +6,6 @@ using GithubCommentBot.Models;
 using Microsoft.Extensions.Logging;
 using Telegram.Bot;
 using Telegram.Bot.Args;
-using Telegram.Bot.Types;
 
 namespace GithubCommentBot.Bot
 {
@@ -102,7 +101,11 @@ namespace GithubCommentBot.Bot
                     ? _botUsers[comment.Comment.User.Login].TelegramName
                     : comment.Comment.User.Login;
 
-                var message = $"Repo: {comment.Repository?.Name}\r\nPR: {comment.PullRequest.Title}\r\n{userName}: {comment.Comment.Body}";
+                var actionString = comment.Action == "created"
+                    ? "Added new coment"
+                    : "Edit comment";
+
+                var message = $"{actionString}\r\nRepo: {comment.Repository?.Name}\r\nPR: {comment.PullRequest.Title}\r\n{userName}: {comment.Comment.Body}\r\n{comment.Comment.Links.Self}";
                 await SendMessage(telegramChatId, message);
             }
         }
