@@ -16,12 +16,12 @@ namespace GithubCommentBot
         {
             _logger = logger;
             _botUsers = new Dictionary<string, BotUser>();
-            if(!File.Exists("DB/GithubBotDB.db"))
+            if(!File.Exists(_dbFile))
             {
                 _logger.LogError($"DB not found");
 
             }
-            _connection = new SqliteConnection("Data Source=DB/GithubBotDB.db");
+            _connection = new SqliteConnection($"Data Source={_dbFile}");
             _connection.Open();
             ReadUsersFromDB();
         }
@@ -62,8 +62,7 @@ namespace GithubCommentBot
         {
             _logger.LogInformation("Start reading reading user from db");
             var readCommand = _connection.CreateCommand();
-            readCommand.CommandText =
-            $@"SELECT ChatId, TelegramName, GithubName FROM Users";
+            readCommand.CommandText = "SELECT ChatId, TelegramName, GithubName FROM Users;";
             var reader = readCommand.ExecuteReader();
             while (reader.Read())
             {
@@ -85,7 +84,7 @@ namespace GithubCommentBot
                     var insertCommand = _connection.CreateCommand();
                     insertCommand.CommandText =
                     $@"INSERT INTO Users (ChatId,TelegramName, GithubName) 
-                       VALUES ({botUser.ChatId}, '{botUser.TelegramName}', '{botUser.GithubName}');)";
+                       VALUES ({botUser.ChatId}, '{botUser.TelegramName}', '{botUser.GithubName}');";
                     await insertCommand.ExecuteNonQueryAsync();
                     transaction.Commit();
                     return true;
@@ -107,5 +106,7 @@ namespace GithubCommentBot
         private readonly ILogger<StoreImpl> _logger;
         private readonly Dictionary<string, BotUser> _botUsers;
         private SqliteConnection _connection;
+
+        private const string _dbFile = "DB/GithubBotDB.db";
     }
 }
