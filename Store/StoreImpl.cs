@@ -4,6 +4,7 @@ using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -15,6 +16,11 @@ namespace GithubCommentBot
         {
             _logger = logger;
             _botUsers = new Dictionary<string, BotUser>();
+            if(!File.Exists("DB/GithubBotDB.db"))
+            {
+                _logger.LogError($"DB not found");
+
+            }
             _connection = new SqliteConnection("Data Source=DB/GithubBotDB.db");
             _connection.Open();
             ReadUsersFromDB();
