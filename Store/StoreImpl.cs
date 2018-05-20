@@ -15,7 +15,7 @@ namespace GithubCommentBot
         {
             _logger = logger;
             _botUsers = new Dictionary<string, BotUser>();
-            _connection = new SqliteConnection("Data Source=GithubBotDB.db");
+            _connection = new SqliteConnection("Data Source=DB/GithubBotDB.db");
             _connection.Open();
             ReadUsersFromDB();
         }
