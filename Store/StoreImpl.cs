@@ -54,7 +54,7 @@ namespace GithubCommentBot
             _logger.LogInformation("Start reading reading user from db");
             using (var db = new GithubBotContext())
             {
-                foreach (var user in db.Users)
+                foreach (var user in db.BotUsers)
                 {
                     _botUsers.Add(user.GithubName, user);
                 }
@@ -67,7 +67,7 @@ namespace GithubCommentBot
             {
                 try
                 {
-                    await db.Users.AddAsync(botUser);
+                    await db.BotUsers.AddAsync(botUser);
                     await db.SaveChangesAsync();
                     return true;
                 }

@@ -5,11 +5,11 @@ namespace GithubCommentBot.Store
 {
     public class GithubBotContext : DbContext
     {
-        public DbSet<BotUser> Users { get; set; }
+        public DbSet<BotUser> BotUsers { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlite("Data Source=DB/GithubBotDB.db");
+            optionsBuilder.UseSqlite("Filename=DB/GithubBotDB.db");
         }
     }
 }
