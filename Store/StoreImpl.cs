@@ -1,10 +1,8 @@
 ﻿using GithubCommentBot.Models;
 using GithubCommentBot.Store;
-using LinqToDB;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -54,9 +52,9 @@ namespace GithubCommentBot
         private void ReadUsersFromDB()
         {
             _logger.LogInformation("Start reading reading user from db");
-            using (var db = new GithubBotDB("GithubBotDB"))
+            using (var db = new GithubBotContext())
             {
-                foreach (var user in db.BotUsers)
+                foreach (var user in db.Users)
                 {
                     _botUsers.Add(user.GithubName, user);
                 }
@@ -65,22 +63,18 @@ namespace GithubCommentBot
 
         private async Task<Boolean> InsertUserIntoDB(BotUser botUser)
         {
-            using (var db = new GithubBotDB("GithubBotDB"))
+            using (var db = new GithubBotContext())
             {
-                using (var transaction = db.BeginTransaction())
+                try
                 {
-                    try
-                    {
-                        await db.InsertAsync(botUser);
-                        transaction.Commit();
-                        return true;
-                    }
-                    catch (Exception e)
-                    {
-                        transaction.Rollback();
-                        _logger.LogError(e, "Fail inserting uset to db");
-                        return false;
-                    }
+                    await db.Users.AddAsync(botUser);
+                    await db.SaveChangesAsync();
+                    return true;
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e, "Fail inserting uset to db");
+                    return false;
                 }
             }
         }
