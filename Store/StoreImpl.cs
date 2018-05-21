@@ -16,11 +16,6 @@ namespace GithubCommentBot
         {
             _logger = logger;
             _botUsers = new Dictionary<string, BotUser>();
-            if (!File.Exists(_connectionString))
-            {
-                _logger.LogError($"DB not found");
-
-            }
             ReadUsersFromDB();
         }
 
@@ -59,7 +54,7 @@ namespace GithubCommentBot
         private void ReadUsersFromDB()
         {
             _logger.LogInformation("Start reading reading user from db");
-            using (var db = new GithubBotDB(_connectionString))
+            using (var db = new GithubBotDB("GithubBotDB"))
             {
                 foreach (var user in db.BotUsers)
                 {
@@ -70,7 +65,7 @@ namespace GithubCommentBot
 
         private async Task<Boolean> InsertUserIntoDB(BotUser botUser)
         {
-            using (var db = new GithubBotDB(_connectionString))
+            using (var db = new GithubBotDB("GithubBotDB"))
             {
                 using (var transaction = db.BeginTransaction())
                 {
@@ -92,7 +87,5 @@ namespace GithubCommentBot
 
         private readonly ILogger<StoreImpl> _logger;
         private readonly Dictionary<string, BotUser> _botUsers;
-
-        private const string _connectionString = "Data Source=DB/GithubBotDB.db;Version=3;";
     }
 }
