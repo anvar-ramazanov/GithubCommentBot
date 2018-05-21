@@ -93,6 +93,6 @@ namespace GithubCommentBot
         private readonly ILogger<StoreImpl> _logger;
         private readonly Dictionary<string, BotUser> _botUsers;
 
-        private const string _connectionString = "Data Source=DB\GithubBotDB.db;Version=3;";
+        private const string _connectionString = "Data Source=DB/GithubBotDB.db;Version=3;";
     }
 }
