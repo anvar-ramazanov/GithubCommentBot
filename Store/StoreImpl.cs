@@ -1,6 +1,6 @@
 ﻿using GithubCommentBot.Models;
 using GithubCommentBot.Store;
-using Microsoft.Data.Sqlite;
+using LinqToDB;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -10,19 +10,17 @@ using System.Threading.Tasks;
 
 namespace GithubCommentBot
 {
-    public class StoreImpl : IDisposable, IStore
+    public class StoreImpl : IStore
     {
         public StoreImpl(ILogger<StoreImpl> logger)
         {
             _logger = logger;
             _botUsers = new Dictionary<string, BotUser>();
-            if(!File.Exists(_dbFile))
+            if (!File.Exists(_connectionString))
             {
                 _logger.LogError($"DB not found");
 
             }
-            _connection = new SqliteConnection($"Data Source={_dbFile}");
-            _connection.Open();
             ReadUsersFromDB();
         }
 
@@ -51,7 +49,7 @@ namespace GithubCommentBot
 
         public Boolean IsRegistered(long chatId)
         {
-            if(_botUsers.FirstOrDefault(_ => _.Value.ChatId == chatId).Value != null)
+            if (_botUsers.FirstOrDefault(_ => _.Value.ChatId == chatId).Value != null)
             {
                 return true;
             }
@@ -61,52 +59,40 @@ namespace GithubCommentBot
         private void ReadUsersFromDB()
         {
             _logger.LogInformation("Start reading reading user from db");
-            var readCommand = _connection.CreateCommand();
-            readCommand.CommandText = "SELECT ChatId, TelegramName, GithubName FROM Users;";
-            var reader = readCommand.ExecuteReader();
-            while (reader.Read())
+            using (var db = new GithubBotDB(_connectionString))
             {
-                var user = new BotUser();
-                user.ChatId = long.Parse(reader["ChatId"].ToString());
-                user.TelegramName = reader["TelegramName"].ToString();
-                user.GithubName = reader["GithubName"].ToString();
-                _logger.LogInformation($"Readed user {user.GithubName}");
-                _botUsers.Add(user.GithubName, user);
+                foreach (var user in db.BotUsers)
+                {
+                    _botUsers.Add(user.GithubName, user);
+                }
             }
         }
 
         private async Task<Boolean> InsertUserIntoDB(BotUser botUser)
         {
-            using (var transaction = _connection.BeginTransaction())
+            using (var db = new GithubBotDB(_connectionString))
             {
-                try
+                using (var transaction = db.BeginTransaction())
                 {
-                    var insertCommand = _connection.CreateCommand();
-                    insertCommand.CommandText =
-                    $@"INSERT INTO Users (ChatId,TelegramName, GithubName) 
-                       VALUES ({botUser.ChatId}, '{botUser.TelegramName}', '{botUser.GithubName}');";
-                    await insertCommand.ExecuteNonQueryAsync();
-                    transaction.Commit();
-                    return true;
-                }
-                catch (Exception e)
-                {
-                    _logger.LogError(e, "Fail inserting uset to db");
-                    return false;
+                    try
+                    {
+                        await db.InsertAsync(botUser);
+                        transaction.Commit();
+                        return true;
+                    }
+                    catch (Exception e)
+                    {
+                        transaction.Rollback();
+                        _logger.LogError(e, "Fail inserting uset to db");
+                        return false;
+                    }
                 }
             }
         }
 
-        public void Dispose()
-        {
-            _connection.Close();
-            _connection = null;
-        }
-
         private readonly ILogger<StoreImpl> _logger;
         private readonly Dictionary<string, BotUser> _botUsers;
-        private SqliteConnection _connection;
 
-        private const string _dbFile = "DB/GithubBotDB.db";
+        private const string _connectionString = "Data Source=DB\GithubBotDB.db;Version=3;";
     }
 }
