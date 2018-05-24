@@ -10,9 +10,10 @@ namespace GithubCommentBot
 {
     public class StoreImpl : IStore
     {
-        public StoreImpl(ILogger<StoreImpl> logger)
+        public StoreImpl(ILogger<StoreImpl> logger, ILogger<GithubBotContext> dbLogger)
         {
             _logger = logger;
+            _dbLogger = dbLogger;
             _botUsers = new Dictionary<string, BotUser>();
             ReadUsersFromDB();
         }
@@ -52,7 +53,7 @@ namespace GithubCommentBot
         private void ReadUsersFromDB()
         {
             _logger.LogInformation("Start reading reading user from db");
-            using (var db = new GithubBotContext())
+            using (var db = new GithubBotContext(_dbLogger))
             {
                 foreach (var user in db.BotUsers)
                 {
@@ -63,7 +64,7 @@ namespace GithubCommentBot
 
         private async Task<Boolean> InsertUserIntoDB(BotUser botUser)
         {
-            using (var db = new GithubBotContext())
+            using (var db = new GithubBotContext(_dbLogger))
             {
                 try
                 {
@@ -80,6 +81,7 @@ namespace GithubCommentBot
         }
 
         private readonly ILogger<StoreImpl> _logger;
+        private readonly ILogger<GithubBotContext> _dbLogger;
         private readonly Dictionary<string, BotUser> _botUsers;
     }
 }
