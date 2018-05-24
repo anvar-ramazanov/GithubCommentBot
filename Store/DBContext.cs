@@ -1,5 +1,6 @@
 ﻿using GithubCommentBot.Models;
 using Microsoft.EntityFrameworkCore;
+using System.IO;
 
 namespace GithubCommentBot.Store
 {
@@ -9,7 +10,8 @@ namespace GithubCommentBot.Store
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlite("Filename=DB/GithubBotDB.db");
+            var currentPath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+            optionsBuilder.UseSqlite($"Filename={Path.Combine(currentPath, "DB", "GithubBotDB.db")}");
         }
     }
 }
