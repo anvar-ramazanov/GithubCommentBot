@@ -36,10 +36,10 @@ namespace GithubCommentBot.Models
         public string Body { get; set; }
 
         [JsonProperty("created_at")]
-        public DateTimeOffset CreatedAt { get; set; }
+        public string CreatedAt { get; set; }
 
         [JsonProperty("updated_at")]
-        public DateTimeOffset UpdatedAt { get; set; }
+        public string UpdatedAt { get; set; }
 
         [JsonProperty("html_url")]
         public string HtmlUrl { get; set; }
