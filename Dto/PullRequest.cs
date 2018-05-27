@@ -42,25 +42,25 @@ namespace GithubCommentBot.Models
         public string Body { get; set; }
 
         [JsonProperty("created_at")]
-        public DateTimeOffset CreatedAt { get; set; }
+        public string CreatedAt { get; set; }
 
         [JsonProperty("updated_at")]
-        public DateTimeOffset UpdatedAt { get; set; }
+        public string UpdatedAt { get; set; }
 
         [JsonProperty("closed_at")]
-        public object ClosedAt { get; set; }
+        public string ClosedAt { get; set; }
 
         [JsonProperty("merged_at")]
-        public object MergedAt { get; set; }
+        public string MergedAt { get; set; }
 
         [JsonProperty("merge_commit_sha")]
         public string MergeCommitSha { get; set; }
 
         [JsonProperty("assignee")]
-        public object Assignee { get; set; }
+        public string Assignee { get; set; }
 
         [JsonProperty("milestone")]
-        public object Milestone { get; set; }
+        public string Milestone { get; set; }
 
         [JsonProperty("commits_url")]
         public string CommitsUrl { get; set; }

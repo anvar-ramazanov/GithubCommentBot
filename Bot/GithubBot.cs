@@ -94,6 +94,7 @@ namespace GithubCommentBot.Bot
             var telegramChatIds = users
                 .Where(_ => _store.HaveUser(_))
                 .Select(_ => _store.GetUser(_).ChatId)
+                .Distinct()
                 .ToArray();
 
             foreach (var telegramChatId in telegramChatIds)
