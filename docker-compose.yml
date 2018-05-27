@@ -5,5 +5,7 @@ services:
     build: .
     ports:
       - "6060:80"
+    environment:
+      - API_TOKEN=your_api_token
     volumes:
        - ./DB:/app/DB
