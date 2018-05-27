@@ -20,6 +20,9 @@ namespace GithubCommentBot
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
+
+            services.AddEntityFrameworkSqlite().AddDbContext<GithubBotContext>();
+
             services.AddSingleton<IStore, StoreImpl>();
             services.AddSingleton<IGithubBot, GithubBot>();
         }

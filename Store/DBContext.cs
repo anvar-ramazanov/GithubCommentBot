@@ -1,4 +1,5 @@
 ﻿using GithubCommentBot.Models;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System.IO;
@@ -19,9 +20,11 @@ namespace GithubCommentBot.Store
             var currentPath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
             var dbFilePath = Path.Combine(currentPath, "DB", "GithubBotDB.db");
             _logger.LogInformation($"DB file exist: {File.Exists(dbFilePath)}");
-            var connString = $"Filename={dbFilePath}";
-            _logger.LogInformation($"ConnectionString: {connString}");
-            optionsBuilder.UseSqlite(connString);
+            var builder = new SqliteConnectionStringBuilder();
+            builder.DataSource = dbFilePath;
+            builder.Mode = SqliteOpenMode.ReadWrite;
+            _logger.LogInformation($"ConnectionString: {builder.ConnectionString}");
+            optionsBuilder.UseSqlite(builder.ConnectionString);
         }
 
         private readonly ILogger<GithubBotContext> _logger;

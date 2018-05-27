@@ -10,11 +10,11 @@ namespace GithubCommentBot
 {
     public class StoreImpl : IStore
     {
-        public StoreImpl(ILogger<StoreImpl> logger, ILogger<GithubBotContext> dbLogger)
+        public StoreImpl(ILogger<StoreImpl> logger, GithubBotContext dbContext)
         {
             _logger = logger;
-            _dbLogger = dbLogger;
             _botUsers = new Dictionary<string, BotUser>();
+            _dbContext = dbContext;
             ReadUsersFromDB();
         }
 
@@ -53,35 +53,30 @@ namespace GithubCommentBot
         private void ReadUsersFromDB()
         {
             _logger.LogInformation("Start reading reading user from db");
-            using (var db = new GithubBotContext(_dbLogger))
+            foreach (var user in _dbContext.BotUsers)
             {
-                foreach (var user in db.BotUsers)
-                {
-                    _botUsers.Add(user.GithubName, user);
-                }
+                _botUsers.Add(user.GithubName, user);
             }
         }
 
         private async Task<Boolean> InsertUserIntoDB(BotUser botUser)
         {
-            using (var db = new GithubBotContext(_dbLogger))
+            try
             {
-                try
-                {
-                    await db.BotUsers.AddAsync(botUser);
-                    await db.SaveChangesAsync();
-                    return true;
-                }
-                catch (Exception e)
-                {
-                    _logger.LogError(e, "Fail inserting uset to db");
-                    return false;
-                }
+                await _dbContext.BotUsers.AddAsync(botUser);
+                await _dbContext.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Fail inserting uset to db");
+                return false;
             }
         }
 
         private readonly ILogger<StoreImpl> _logger;
         private readonly ILogger<GithubBotContext> _dbLogger;
         private readonly Dictionary<string, BotUser> _botUsers;
+        private readonly GithubBotContext _dbContext;
     }
 }
