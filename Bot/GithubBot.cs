@@ -107,7 +107,7 @@ namespace GithubCommentBot.Bot
                     ? "Added new coment"
                     : "Edit comment";
 
-                var message = $"{actionString}\r\nRepo: {comment.Repository?.Name}\r\nPR: {comment.PullRequest.Title}\r\n{userName}: {comment.Comment.Body}\r\n{comment.Comment.Links.Html}";
+                var message = $"{actionString}\r\nRepo: {comment.Repository?.Name}\r\nPR: {comment.PullRequest.Title}\r\n{userName}: {comment.Comment.Body}\r\n{comment.Comment.HtmlUrl}";
                 await SendMessage(telegramChatId, message);
             }
         }
