@@ -1,0 +1,9 @@
+version: '3'
+
+services:
+  github_bot:
+    build: .
+    ports:
+      - "6060:80"
+    volumes:
+       - ./DB:/app/DB
