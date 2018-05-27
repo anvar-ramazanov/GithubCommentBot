@@ -100,7 +100,7 @@ namespace GithubCommentBot.Bot
             foreach (var telegramChatId in telegramChatIds)
             {
                 var userName = _store.HaveUser(comment.Comment.User.Login)
-                    ? _store.GetUser(comment.Comment.User.Login).TelegramName
+                    ? $"@{_store.GetUser(comment.Comment.User.Login).TelegramName}"
                     : comment.Comment.User.Login;
 
                 var actionString = comment.Action == "created"
