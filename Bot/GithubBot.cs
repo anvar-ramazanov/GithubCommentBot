@@ -88,7 +88,7 @@ namespace GithubCommentBot.Bot
 
             if (!users.Contains(comment.Comment.User.Login))
             {
-                users.Add(comment.PullRequest.User.Login);
+                users.Add(comment.Comment.User.Login);
             }
 
             var telegramChatIds = users
