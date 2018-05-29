@@ -92,7 +92,7 @@ namespace GithubCommentBot.Bot
             }
 
             var telegramChatIds = users
-                .Where(_ => _store.HaveUser(_))
+                .Where(_ => _store.HaveUser(_) && _ != comment.Comment.User.Login)
                 .Select(_ => _store.GetUser(_).ChatId)
                 .Distinct()
                 .ToArray();
