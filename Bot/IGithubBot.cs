@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using GithubCommentBot.Dto;
 using GithubCommentBot.Models;
 
 namespace GithubCommentBot.Bot
@@ -7,6 +8,7 @@ namespace GithubCommentBot.Bot
     {
         void Start();
         void Stop();
-        Task AddHook(PrWebHook comment);
+        Task AddCommentHook(PrComentWebHook comment);
+        Task AddApproveHook(PrWebHook prWebHook);
     }
 }
