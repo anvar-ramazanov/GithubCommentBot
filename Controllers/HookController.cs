@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using System.IO;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using GithubCommentBot.Bot;
 using GithubCommentBot.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using GithubCommentBot.Dto;
 
 namespace GithubCommentBot.Controllers
 {
@@ -19,6 +16,10 @@ namespace GithubCommentBot.Controllers
         {
             _bot = bot;
             _logger = logger;
+            _settings = new JsonSerializerSettings()
+            {
+                MissingMemberHandling = MissingMemberHandling.Error
+            };
         }
 
         [HttpPost]
@@ -29,29 +30,48 @@ namespace GithubCommentBot.Controllers
             {
                 var json = reader.ReadToEnd();
                 _logger.LogInformation($"Catch hook: {json}");
-                var prWebHook = ParsePrWebHook(json);
-                if(prWebHook != null && prWebHook.Comment != null && prWebHook.PullRequest != null)
+                var prCommentWebHook = ParsePrCommentWebHook(json);
+                if(prCommentWebHook != null)
                 {
                     _logger.LogInformation($"Hook is pr comment");
-                    if (prWebHook.Action == "created" || prWebHook.Action == "updated")
+                    if (prCommentWebHook.Action == "created" || prCommentWebHook.Action == "updated")
                     {
-                        await _bot.AddHook(prWebHook);
+                        await _bot.AddCommentHook(prCommentWebHook);
                     }
                 }
                 else
                 {
+                    var prWebHook = ParsePrWebHook(json);
+                    if(prWebHook.Action == "submitted")
+                    {
+
+                    }
                     _logger.LogWarning("Unknown webhook");
                 }
                 return StatusCode(200);
             }
         }
 
-        public static PrWebHook ParsePrWebHook(string json)
+        public PrComentWebHook ParsePrCommentWebHook(string json)
+        {
+            PrComentWebHook result;
+            try
+            {
+                result = JsonConvert.DeserializeObject<PrComentWebHook>(json, _settings);
+            }
+            catch (JsonSerializationException ex)
+            {
+                result = null;
+            }
+            return result;
+        }
+
+        public PrWebHook ParsePrWebHook(string json)
         {
             PrWebHook result;
             try
             {
-                result = JsonConvert.DeserializeObject<PrWebHook>(json);
+                result = JsonConvert.DeserializeObject<PrWebHook>(json, _settings);
             }
             catch (JsonSerializationException ex)
             {
@@ -62,5 +82,6 @@ namespace GithubCommentBot.Controllers
 
         private readonly IGithubBot _bot;
         private readonly ILogger<HookController> _logger;
+        private readonly JsonSerializerSettings _settings;
     }
 }

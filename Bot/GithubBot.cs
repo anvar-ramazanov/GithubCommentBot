@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using GithubCommentBot.Dto;
 using GithubCommentBot.Models;
 using GithubCommentBot.Store;
 using Microsoft.Extensions.Logging;
@@ -68,7 +69,7 @@ namespace GithubCommentBot.Bot
             }
         }
 
-        public async Task AddHook(PrWebHook comment)
+        public async Task AddCommentHook(PrComentWebHook comment)
         {
             List<string> users;
             if (_prUsers.ContainsKey(comment.PullRequest.Id))
@@ -109,6 +110,27 @@ namespace GithubCommentBot.Bot
 
                 var message = $"{actionString}\r\nRepo: {comment.Repository?.Name}\r\nPR: {comment.PullRequest.Title}\r\n{userName}: {comment.Comment.Body}\r\n{comment.Comment.HtmlUrl}";
                 await SendMessage(telegramChatId, message);
+            }
+        }
+
+        public async Task AddApproveHook(PrWebHook prWebHook)
+        {
+            var user = prWebHook?.PullRequest?.User?.Login;
+            if (!string.IsNullOrEmpty(user))
+            {
+                var telegramChatId = _store.HaveUser(user)
+                    ? _store.GetUser(user).ChatId
+                    : 0;
+
+                if (telegramChatId != 0)
+                {
+                    var aprover = _store.HaveUser(prWebHook.Review.User.Login)
+                        ? $"@{ _store.GetUser(prWebHook.Review.User.Login).TelegramName}"
+                        : prWebHook.Review.User.Login;
+
+                    var message = $"Pull request approved\r\nRepo: {prWebHook.Repository?.Name}\r\nPR: {prWebHook.PullRequest?.Title}\r\nBy {aprover}r\n{prWebHook.PullRequest.Links.Html.Href}";
+                    await SendMessage(telegramChatId, message);
+                }
             }
         }
 
