@@ -42,9 +42,18 @@ namespace GithubCommentBot.Controllers
                 else
                 {
                     var prWebHook = ParsePrWebHook(json);
-                    if(prWebHook.Action == "submitted")
+                    if (prWebHook != null)
                     {
+                        if (prWebHook.Action == "submitted")
+                        {
+                            await _bot.AddApproveHook(prWebHook);
 
+                        }
+                        else if (prWebHook.Action == "dismissed")
+                        {
+                            await _bot.AddRejectHook(prWebHook);
+
+                        }
                     }
                     _logger.LogWarning("Unknown webhook");
                 }

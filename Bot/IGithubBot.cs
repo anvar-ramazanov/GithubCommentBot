@@ -10,5 +10,6 @@ namespace GithubCommentBot.Bot
         void Stop();
         Task AddCommentHook(PrComentWebHook comment);
         Task AddApproveHook(PrWebHook prWebHook);
+        Task AddRejectHook(PrWebHook prWebHook);
     }
 }
