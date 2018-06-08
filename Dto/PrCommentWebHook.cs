@@ -1,15 +1,14 @@
-﻿using GithubCommentBot.Models;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
-namespace GithubCommentBot.Dto
+namespace GithubCommentBot.Models
 {
-    public class PrWebHook
+    public class PrComentWebHook
     {
         [JsonProperty("action")]
         public string Action { get; set; }
 
-        [JsonProperty("review")]
-        public Review Review { get; set; }
+        [JsonProperty("comment")]
+        public Comment Comment { get; set; }
 
         [JsonProperty("pull_request")]
         public PullRequest PullRequest { get; set; }
