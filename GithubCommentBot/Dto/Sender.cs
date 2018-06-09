@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System;
 
 namespace GithubCommentBot.Models
 {
@@ -54,6 +55,9 @@ namespace GithubCommentBot.Models
 
         [JsonProperty("site_admin")]
         public bool SiteAdmin { get; set; }
+
+        [JsonProperty("node_id")]
+        public String NodeId { get; set; }
     }
 
 }

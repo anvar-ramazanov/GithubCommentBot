@@ -1,5 +1,6 @@
 ﻿using GithubCommentBot.Models;
 using Newtonsoft.Json;
+using System;
 
 namespace GithubCommentBot.Models
 {
@@ -28,5 +29,14 @@ namespace GithubCommentBot.Models
 
         [JsonProperty("_links")]
         public ReviewLinks Links { get; set; }
+
+        [JsonProperty("node_id")]
+        public String NodeId { get; set; }
+
+        [JsonProperty("commit_id")]
+        public string CommitId { get; set; }
+
+        [JsonProperty("author_association")]
+        public String AuthorAssociation { get; set; }
     }
 }

@@ -49,5 +49,14 @@ namespace GithubCommentBot.Models
 
         [JsonProperty("_links")]
         public CommentLinks Links { get; set; }
+
+        [JsonProperty("pull_request_review_id")]
+        public String PullRequestReviewId { get; set; }
+
+        [JsonProperty("node_id")]
+        public String NodeId { get; set; }
+
+        [JsonProperty("author_association")]
+        public String AuthorAssociation { get; set; }
     }
 }

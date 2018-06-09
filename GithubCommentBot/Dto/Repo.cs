@@ -208,6 +208,19 @@ namespace GithubCommentBot.Models
 
         [JsonProperty("deployments_url")]
         public string DeploymentsUrl { get; set; }
+
+        [JsonProperty("node_id")]
+        public String NodeId { get; set; }
+
+        [JsonProperty("has_projects")]
+        public Boolean HasProjects { get; set; }
+
+        [JsonProperty("archived")]
+        public Boolean Archived { get; set; }
+
+        [JsonProperty("license")]
+        public String License { get; set; }
+
     }
 
 }

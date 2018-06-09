@@ -89,6 +89,22 @@ namespace GithubCommentBot.Models
 
         [JsonProperty("_links")]
         public PullRequestLinks Links { get; set; }
+
+        [JsonProperty("node_id")]
+        public String NodeId { get; set; }
+        
+        [JsonProperty("requested_reviewers")]
+        public String[] RequestedReviewers { get; set; }
+
+        [JsonProperty("requested_teams")]
+        public String[] RequestedTeams { get; set; }
+
+        [JsonProperty("labels")]
+        public String[] Labels { get; set; }
+
+        [JsonProperty("author_association")]
+        public String AuthorAssociation { get; set; }
+
     }
 
 }
