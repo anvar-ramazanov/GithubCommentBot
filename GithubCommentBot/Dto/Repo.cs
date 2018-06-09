@@ -205,6 +205,9 @@ namespace GithubCommentBot.Models
 
         [JsonProperty("default_branch")]
         public string DefaultBranch { get; set; }
+
+        [JsonProperty("deployments_url")]
+        public string DeploymentsUrl { get; set; }
     }
 
 }

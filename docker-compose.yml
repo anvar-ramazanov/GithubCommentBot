@@ -2,7 +2,7 @@ version: '3'
 
 services:
   github_bot:
-    build: .
+    build: GithubCommentBot/.
     ports:
       - "6060:80"
     environment:
