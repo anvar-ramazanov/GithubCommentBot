@@ -59,6 +59,10 @@ namespace GithubCommentBot.Models
         [JsonProperty("assignee")]
         public string Assignee { get; set; }
 
+
+        [JsonProperty("assignees")]
+        public string[] Assignees { get; set; }
+
         [JsonProperty("milestone")]
         public string Milestone { get; set; }
 
