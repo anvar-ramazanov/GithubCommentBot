@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using GithubCommentBot.Dto;
 using GithubCommentBot.Models;
@@ -92,6 +93,15 @@ namespace GithubCommentBot.Bot
                 users.Add(comment.Comment.User.Login);
             }
 
+            var means = GetMeansUsers(comment.Comment.Body);
+            foreach(var mean in means)
+            {
+                if (!users.Contains(mean))
+                {
+                    users.Add(mean);
+                }
+            }
+
             var telegramChatIds = users
                 .Where(_ => _store.HaveUser(_) && _ != comment.Comment.User.Login)
                 .Select(_ => _store.GetUser(_).ChatId)
@@ -153,6 +163,17 @@ namespace GithubCommentBot.Bot
                     await SendMessage(telegramChatId, message);
                 }
             }
+        }
+
+        private List<String> GetMeansUsers(string content)
+        {
+            var users = new List<String>();
+            var rgx = new Regex("@\\S+");
+            foreach (Match match in rgx.Matches(content))
+            {
+                users.Add(match.Value.Replace("@", string.Empty));
+            }
+            return users;
         }
 
         private async Task SendMessage(long chatId, string text)
