@@ -8,7 +8,7 @@ namespace GithubCommentBot.Bot
     {
         void Start();
         void Stop();
-        Task AddCommentHook(PrComentWebHook comment);
+        Task AddCommentHook(PrCommentWebHook comment);
         Task AddApproveHook(PrWebHook prWebHook);
         Task AddRejectHook(PrWebHook prWebHook);
     }

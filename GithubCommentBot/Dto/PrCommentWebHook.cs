@@ -2,7 +2,7 @@
 
 namespace GithubCommentBot.Models
 {
-    public class PrComentWebHook
+    public class PrCommentWebHook
     {
         [JsonProperty("action")]
         public string Action { get; set; }

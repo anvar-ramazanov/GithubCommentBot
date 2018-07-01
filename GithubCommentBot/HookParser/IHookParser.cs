@@ -5,7 +5,7 @@ namespace GithubCommentBot.HookParser
 {
     public interface IHookParser
     {
-        PrComentWebHook ParsePrCommentWebHook(string json);
+        PrCommentWebHook ParsePrCommentWebHook(string json);
         PrWebHook ParsePrWebHook(string json);
     }
 }
