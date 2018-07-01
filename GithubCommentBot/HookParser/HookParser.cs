@@ -14,12 +14,22 @@ namespace GithubCommentBot.HookParser
             };
         }
 
-        public PrComentWebHook ParsePrCommentWebHook(string json)
+        public PrCommentWebHook ParsePrCommentWebHook(string json)
         {
-            PrComentWebHook result;
+            return ParseSimplePrCommentHook(json) ?? ParsePrOrganizationCommentWebHook(json);
+        }
+
+        public PrWebHook ParsePrWebHook(string json)
+        {
+            return PaseSimplePrWebHook(json) ?? ParsePrOrganizationWebHook(json);
+        }
+
+        private PrCommentWebHook ParseSimplePrCommentHook(string json)
+        {
+            PrCommentWebHook result;
             try
             {
-                result = JsonConvert.DeserializeObject<PrComentWebHook>(json, _settings);
+                result = JsonConvert.DeserializeObject<PrCommentWebHook>(json, _settings);
             }
             catch (JsonSerializationException ex)
             {
@@ -28,12 +38,40 @@ namespace GithubCommentBot.HookParser
             return result;
         }
 
-        public PrWebHook ParsePrWebHook(string json)
+        private PrOrganizationCommentWebHook ParsePrOrganizationCommentWebHook(string json)
+        {
+            PrOrganizationCommentWebHook result;
+            try
+            {
+                result = JsonConvert.DeserializeObject<PrOrganizationCommentWebHook>(json, _settings);
+            }
+            catch (JsonSerializationException ex)
+            {
+                result = null;
+            }
+            return result;
+        }
+
+        private PrWebHook PaseSimplePrWebHook(string json)
         {
             PrWebHook result;
             try
             {
                 result = JsonConvert.DeserializeObject<PrWebHook>(json, _settings);
+            }
+            catch (JsonSerializationException ex)
+            {
+                result = null;
+            }
+            return result;
+        }
+
+        private PrOrganizationWebHook ParsePrOrganizationWebHook(string json)
+        {
+            PrOrganizationWebHook result;
+            try
+            {
+                result = JsonConvert.DeserializeObject<PrOrganizationWebHook>(json, _settings);
             }
             catch (JsonSerializationException ex)
             {

@@ -70,7 +70,7 @@ namespace GithubCommentBot.Bot
             }
         }
 
-        public async Task AddCommentHook(PrComentWebHook comment)
+        public async Task AddCommentHook(PrCommentWebHook comment)
         {
             List<string> users;
             if (_prUsers.ContainsKey(comment.PullRequest.Id))
