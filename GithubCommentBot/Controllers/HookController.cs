@@ -46,12 +46,18 @@ namespace GithubCommentBot.Controllers
             {
                 if (prWebHook.PullRequest.State == "approved")
                 {
+                    _logger.LogInformation($"Send approve message to telegram");
                     await _bot.AddApproveHook(prWebHook);
                 }
-                else if (prWebHook.PullRequest.State == "dismissed")
+                else if (prWebHook.PullRequest.State == "changes_requested")
                 {
+                    _logger.LogInformation($"Send reject message to telegram");
                     await _bot.AddRejectHook(prWebHook);
                 }
+            }
+            else
+            {
+                _logger.LogInformation($"Pull request is null");
             }
         }
 

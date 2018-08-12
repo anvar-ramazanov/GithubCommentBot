@@ -137,20 +137,23 @@ namespace GithubCommentBot.Bot
 
         public async Task AddApproveHook(PrWebHook prWebHook)
         {
-            var user = prWebHook?.PullRequest?.User?.Login;
+            var user = prWebHook?.PullRequest.User?.Login;
             if (string.IsNullOrEmpty(user))
             {
+                _logger.LogInformation($"User is null");
                 return;
             }
 
             if (!_approvedPr.ContainsKey(prWebHook.PullRequest.Id))
             {
+                _logger.LogInformation($"Pr {prWebHook.PullRequest.Id} already approved");
                 return;
             }
 
             _approvedPr.Add(prWebHook.PullRequest.Id, true);
             if (_rejectedPr.ContainsKey(prWebHook.PullRequest.Id))
             {
+                _logger.LogInformation($"Remove pr {prWebHook.PullRequest.Id} from rejected");
                 _rejectedPr.Remove(prWebHook.PullRequest.Id);
             }
 
@@ -174,17 +177,20 @@ namespace GithubCommentBot.Bot
             var user = prWebHook?.PullRequest?.User?.Login;
             if (!string.IsNullOrEmpty(user))
             {
+                _logger.LogInformation($"User is null");
                 return;
             }
 
             if (_rejectedPr.ContainsKey(prWebHook.PullRequest.Id))
             {
+                _logger.LogInformation($"Pr {prWebHook.PullRequest.Id} already rejected");
                 return;
             }
 
             _rejectedPr.Add(prWebHook.PullRequest.Id, true);
             if(_approvedPr.ContainsKey(prWebHook.PullRequest.Id))
             {
+                _logger.LogInformation($"Remove pr {prWebHook.PullRequest.Id} from approved");
                 _approvedPr.Remove(prWebHook.PullRequest.Id);
             }
 
