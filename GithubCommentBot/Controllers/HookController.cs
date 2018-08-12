@@ -42,14 +42,14 @@ namespace GithubCommentBot.Controllers
         public async Task GetPrHook([FromBody] PrWebHook prWebHook)
         {
             _logger.LogInformation($"Got new prWebHook hook");
-            if (prWebHook.PullRequest != null)
+            if (prWebHook.Review != null)
             {
-                if (prWebHook.PullRequest.State == "approved")
+                if (prWebHook.Review.State == "approved")
                 {
                     _logger.LogInformation($"Send approve message to telegram");
                     await _bot.AddApproveHook(prWebHook);
                 }
-                else if (prWebHook.PullRequest.State == "changes_requested")
+                else if (prWebHook.Review.State == "changes_requested")
                 {
                     _logger.LogInformation($"Send reject message to telegram");
                     await _bot.AddRejectHook(prWebHook);
@@ -57,7 +57,7 @@ namespace GithubCommentBot.Controllers
             }
             else
             {
-                _logger.LogInformation($"Pull request is null");
+                _logger.LogInformation($"Pull request review is null");
             }
         }
 
