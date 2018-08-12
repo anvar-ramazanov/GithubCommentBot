@@ -72,32 +72,26 @@ namespace GithubCommentBot.Bot
 
         public async Task AddCommentHook(PrCommentWebHook comment)
         {
-            List<string> users;
-            if (_prUsers.ContainsKey(comment.PullRequest.Id))
-            {
-                users = _prUsers[comment.PullRequest.Id];
-            }
-            else
-            {
-                users = new List<string>();
-                _prUsers.Add(comment.PullRequest.Id, users);
-            }
+            var users = GetUsersForPr(comment.PullRequest.Id);
 
             if (!users.Contains(comment.PullRequest.User.Login))
             {
+                _logger.LogInformation($"Add {comment.PullRequest.User.Login} to receivers for this pr");
                 users.Add(comment.PullRequest.User.Login);
             }
 
             if (!users.Contains(comment.Comment.User.Login))
             {
+                _logger.LogInformation($"Add {comment.Comment.User.Login} to receivers for this pr");
                 users.Add(comment.Comment.User.Login);
             }
 
             var means = GetMeansUsers(comment.Comment.Body);
-            foreach(var mean in means)
+            foreach (var mean in means)
             {
                 if (!users.Contains(mean))
                 {
+                    _logger.LogInformation($"Add {mean} to receivers for this pr");
                     users.Add(mean);
                 }
             }
@@ -120,6 +114,19 @@ namespace GithubCommentBot.Bot
 
                 var message = $"{actionString}\r\nRepo: {comment.Repository?.Name}\r\nPR: {comment.PullRequest.Title}\r\n{userName}: {comment.Comment.Body}\r\n{comment.Comment.HtmlUrl}";
                 await SendMessage(telegramChatId, message);
+            }
+        }
+
+        private List<string> GetUsersForPr(long prId)
+        {
+            if (_prUsers.ContainsKey(prId))
+            {
+                return _prUsers[prId];
+            }
+            else
+            {
+                _prUsers.Add(prId, new List<string>());
+                return _prUsers[prId];
             }
         }
 

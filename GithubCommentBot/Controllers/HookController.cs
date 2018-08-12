@@ -26,6 +26,7 @@ namespace GithubCommentBot.Controllers
             _logger.LogInformation($"Got new comment hook");
             if (prCommentWebHook.Action == "created" || prCommentWebHook.Action == "updated")
             {
+                _logger.LogInformation($"Send comment to telegram");
                 await _bot.AddCommentHook(prCommentWebHook);
             }
         }
