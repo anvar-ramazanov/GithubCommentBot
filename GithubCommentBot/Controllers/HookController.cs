@@ -22,10 +22,9 @@ namespace GithubCommentBot.Controllers
 
         [HttpPost]
         [Route("comments")]
-        public async Task GetCommentHook(PrCommentWebHook prCommentWebHook)
+        public async Task GetCommentHook([FromBody] PrCommentWebHook prCommentWebHook)
         {
-            var json = JsonConvert.SerializeObject(prCommentWebHook);
-            _logger.LogInformation($"Got new comment hook: {json}");
+            _logger.LogInformation($"Got new comment hook");
             if (prCommentWebHook.Action == "created" || prCommentWebHook.Action == "updated")
             {
                 _logger.LogInformation($"Send comment to telegram");
@@ -40,7 +39,7 @@ namespace GithubCommentBot.Controllers
 
         [HttpPost]
         [Route("pr")]
-        public async Task GetPrHook(PrWebHook prWebHook)
+        public async Task GetPrHook([FromBody] PrWebHook prWebHook)
         {
             _logger.LogInformation($"Got new prWebHook hook");
             if (prWebHook.Action == "submitted")
