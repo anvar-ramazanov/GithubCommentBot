@@ -29,6 +29,10 @@ namespace GithubCommentBot.Controllers
                 _logger.LogInformation($"Send comment to telegram");
                 await _bot.AddCommentHook(prCommentWebHook);
             }
+            else
+            {
+                _logger.LogInformation($"Dont send to telegram beacause action = {prCommentWebHook.Action}");
+            }
         }
 
 
