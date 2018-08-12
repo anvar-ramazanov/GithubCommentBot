@@ -4,6 +4,8 @@ using GithubCommentBot.Bot;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using GithubCommentBot.HookParser;
+using GithubCommentBot.Models;
+using GithubCommentBot.Dto;
 
 namespace GithubCommentBot.Controllers
 {
@@ -18,40 +20,30 @@ namespace GithubCommentBot.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post()
+        [Route("comments")]
+        public async Task GetCommentHook(PrCommentWebHook prCommentWebHook)
         {
-            var body = HttpContext.Request.Body;
-            using (var reader = new StreamReader(body))
+            _logger.LogInformation($"Got new comment hook");
+            if (prCommentWebHook.Action == "created" || prCommentWebHook.Action == "updated")
             {
-                var json = reader.ReadToEnd();
-                _logger.LogInformation($"Catch hook: {json}");
-                var prCommentWebHook = _parser.ParsePrCommentWebHook(json);
-                if(prCommentWebHook != null)
-                {
-                    _logger.LogInformation($"Hook is pr comment");
-                    if (prCommentWebHook.Action == "created" || prCommentWebHook.Action == "updated")
-                    {
-                        await _bot.AddCommentHook(prCommentWebHook);
-                    }
-                }
-                else
-                {
-                    var prWebHook = _parser.ParsePrWebHook(json);
-                    if (prWebHook != null)
-                    {
-                        if (prWebHook.Action == "submitted")
-                        {
-                            await _bot.AddApproveHook(prWebHook);
-                        }
-                        else if (prWebHook.Action == "dismissed")
-                        {
-                            await _bot.AddRejectHook(prWebHook);
+                await _bot.AddCommentHook(prCommentWebHook);
+            }
+        }
 
-                        }
-                    }
-                    _logger.LogWarning("Unknown webhook");
-                }
-                return StatusCode(200);
+
+        [HttpPost]
+        [Route("pr")]
+        public async Task GetPrHook(PrWebHook prWebHook)
+        {
+            _logger.LogInformation($"Got new prWebHook hook");
+            if (prWebHook.Action == "submitted")
+            {
+                await _bot.AddApproveHook(prWebHook);
+            }
+            else if (prWebHook.Action == "dismissed")
+            {
+                await _bot.AddRejectHook(prWebHook);
+
             }
         }
 
