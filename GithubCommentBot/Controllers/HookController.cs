@@ -25,7 +25,7 @@ namespace GithubCommentBot.Controllers
         public async Task GetCommentHook(PrCommentWebHook prCommentWebHook)
         {
             var json = JsonConvert.SerializeObject(prCommentWebHook);
-            _logger.LogInformation($"Got new comment hook: {prCommentWebHook}");
+            _logger.LogInformation($"Got new comment hook: {json}");
             if (prCommentWebHook.Action == "created" || prCommentWebHook.Action == "updated")
             {
                 _logger.LogInformation($"Send comment to telegram");
