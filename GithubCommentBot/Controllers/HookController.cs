@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using GithubCommentBot.HookParser;
 using GithubCommentBot.Models;
 using GithubCommentBot.Dto;
+using Newtonsoft.Json;
 
 namespace GithubCommentBot.Controllers
 {
@@ -23,7 +24,8 @@ namespace GithubCommentBot.Controllers
         [Route("comments")]
         public async Task GetCommentHook(PrCommentWebHook prCommentWebHook)
         {
-            _logger.LogInformation($"Got new comment hook");
+            var json = JsonConvert.SerializeObject(prCommentWebHook);
+            _logger.LogInformation($"Got new comment hook: {prCommentWebHook}");
             if (prCommentWebHook.Action == "created" || prCommentWebHook.Action == "updated")
             {
                 _logger.LogInformation($"Send comment to telegram");
