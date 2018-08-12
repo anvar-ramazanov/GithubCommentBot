@@ -144,7 +144,7 @@ namespace GithubCommentBot.Bot
                 return;
             }
 
-            if (!_approvedPr.ContainsKey(prWebHook.PullRequest.Id))
+            if (_approvedPr.ContainsKey(prWebHook.PullRequest.Id))
             {
                 _logger.LogInformation($"Pr {prWebHook.PullRequest.Id} already approved");
                 return;
@@ -175,7 +175,7 @@ namespace GithubCommentBot.Bot
         public async Task AddRejectHook(PrWebHook prWebHook)
         {
             var user = prWebHook?.PullRequest?.User?.Login;
-            if (!string.IsNullOrEmpty(user))
+            if (string.IsNullOrEmpty(user))
             {
                 _logger.LogInformation($"User is null");
                 return;
