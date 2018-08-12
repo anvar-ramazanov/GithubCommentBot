@@ -87,6 +87,7 @@ namespace GithubCommentBot.Bot
             }
 
             var means = GetMeansUsers(comment.Comment.Body);
+            _logger.LogInformation($"Founded next direct call: {string.Join(',', means)}");
             foreach (var mean in means)
             {
                 if (!users.Contains(mean))
@@ -95,6 +96,8 @@ namespace GithubCommentBot.Bot
                     users.Add(mean);
                 }
             }
+
+            _logger.LogInformation($"Start founding users: {string.Join(',', users)}");
 
             var telegramChatIds = users
                 .Where(_ => _store.HaveUser(_) && _ != comment.Comment.User.Login)
