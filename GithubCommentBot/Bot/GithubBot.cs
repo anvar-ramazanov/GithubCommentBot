@@ -20,6 +20,8 @@ namespace GithubCommentBot.Bot
             var apiToken = Environment.GetEnvironmentVariable("API_TOKEN");
             _logger.LogInformation($"TelegramBot api: {apiToken}");
             _prUsers = new Dictionary<long, List<string>>();
+            _approvedPr = new Dictionary<long, bool>();
+            _rejectedPr = new Dictionary<long, bool>();
             _telegramClient = new TelegramBotClient(apiToken);
             _telegramUsersWithInvite = new List<string>();
             _store = store;
@@ -136,21 +138,34 @@ namespace GithubCommentBot.Bot
         public async Task AddApproveHook(PrWebHook prWebHook)
         {
             var user = prWebHook?.PullRequest?.User?.Login;
-            if (!string.IsNullOrEmpty(user))
+            if (string.IsNullOrEmpty(user))
             {
-                var telegramChatId = _store.HaveUser(user)
-                    ? _store.GetUser(user).ChatId
-                    : 0;
+                return;
+            }
 
-                if (telegramChatId != 0)
-                {
-                    var aprover = _store.HaveUser(prWebHook.Review.User.Login)
-                        ? $"@{ _store.GetUser(prWebHook.Review.User.Login).TelegramName}"
-                        : prWebHook.Review.User.Login;
+            if (!_approvedPr.ContainsKey(prWebHook.PullRequest.Id))
+            {
+                return;
+            }
 
-                    var message = $"Pull request approved  by {aprover}\r\nRepo: {prWebHook.Repository?.Name}\r\nPR: {prWebHook.PullRequest?.Title}r\n{prWebHook.PullRequest.Links.Html.Href}";
-                    await SendMessage(telegramChatId, message);
-                }
+            _approvedPr.Add(prWebHook.PullRequest.Id, true);
+            if (_rejectedPr.ContainsKey(prWebHook.PullRequest.Id))
+            {
+                _rejectedPr.Remove(prWebHook.PullRequest.Id);
+            }
+
+            var telegramChatId = _store.HaveUser(user)
+                ? _store.GetUser(user).ChatId
+                : 0;
+
+            if (telegramChatId != 0)
+            {
+                var aprover = _store.HaveUser(prWebHook.Review.User.Login)
+                    ? $"@{ _store.GetUser(prWebHook.Review.User.Login).TelegramName}"
+                    : prWebHook.Review.User.Login;
+
+                var message = $"Pull request approved  by {aprover}\r\nRepo: {prWebHook.Repository?.Name}\r\nPR: {prWebHook.PullRequest?.Title}r\n{prWebHook.PullRequest.Links.Html.Href}";
+                await SendMessage(telegramChatId, message);
             }
         }
 
@@ -159,19 +174,32 @@ namespace GithubCommentBot.Bot
             var user = prWebHook?.PullRequest?.User?.Login;
             if (!string.IsNullOrEmpty(user))
             {
-                var telegramChatId = _store.HaveUser(user)
-                    ? _store.GetUser(user).ChatId
-                    : 0;
+                return;
+            }
 
-                if (telegramChatId != 0)
-                {
-                    var aprover = _store.HaveUser(prWebHook.Review.User.Login)
-                        ? $"@{ _store.GetUser(prWebHook.Review.User.Login).TelegramName}"
-                        : prWebHook.Review.User.Login;
+            if (_rejectedPr.ContainsKey(prWebHook.PullRequest.Id))
+            {
+                return;
+            }
 
-                    var message = $"Pull request rejected by {aprover}\r\nRepo: {prWebHook.Repository?.Name}\r\nPR: {prWebHook.PullRequest?.Title}r\n{prWebHook.PullRequest.Links.Html.Href}";
-                    await SendMessage(telegramChatId, message);
-                }
+            _rejectedPr.Add(prWebHook.PullRequest.Id, true);
+            if(_approvedPr.ContainsKey(prWebHook.PullRequest.Id))
+            {
+                _approvedPr.Remove(prWebHook.PullRequest.Id);
+            }
+
+            var telegramChatId = _store.HaveUser(user)
+                ? _store.GetUser(user).ChatId
+                : 0;
+
+            if (telegramChatId != 0)
+            {
+                var aprover = _store.HaveUser(prWebHook.Review.User.Login)
+                    ? $"@{ _store.GetUser(prWebHook.Review.User.Login).TelegramName}"
+                    : prWebHook.Review.User.Login;
+
+                var message = $"Pull request rejected by {aprover}\r\nRepo: {prWebHook.Repository?.Name}\r\nPR: {prWebHook.PullRequest?.Title}r\n{prWebHook.PullRequest.Links.Html.Href}";
+                await SendMessage(telegramChatId, message);
             }
         }
 
@@ -195,6 +223,8 @@ namespace GithubCommentBot.Bot
         private readonly List<string> _telegramUsersWithInvite;
         private readonly IStore _store;
         private readonly Dictionary<long, List<string>> _prUsers;
+        private readonly Dictionary<long, bool> _approvedPr;
+        private readonly Dictionary<long, bool> _rejectedPr;
         private readonly TelegramBotClient _telegramClient;
         private ILogger<GithubBot> _logger;
     }

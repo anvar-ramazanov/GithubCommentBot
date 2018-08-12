@@ -42,14 +42,16 @@ namespace GithubCommentBot.Controllers
         public async Task GetPrHook([FromBody] PrWebHook prWebHook)
         {
             _logger.LogInformation($"Got new prWebHook hook");
-            if (prWebHook.Action == "submitted")
+            if (prWebHook.PullRequest != null)
             {
-                await _bot.AddApproveHook(prWebHook);
-            }
-            else if (prWebHook.Action == "dismissed")
-            {
-                await _bot.AddRejectHook(prWebHook);
-
+                if (prWebHook.PullRequest.State == "approved")
+                {
+                    await _bot.AddApproveHook(prWebHook);
+                }
+                else if (prWebHook.PullRequest.State == "dismissed")
+                {
+                    await _bot.AddRejectHook(prWebHook);
+                }
             }
         }
 
