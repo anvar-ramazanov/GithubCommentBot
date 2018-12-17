@@ -1,5 +1,4 @@
 ﻿using GithubCommentBot.Bot;
-using GithubCommentBot.HookParser;
 using GithubCommentBot.Store;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -25,7 +24,6 @@ namespace GithubCommentBot
             services.AddEntityFrameworkSqlite().AddDbContext<GithubBotContext>();
 
             services.AddSingleton<IStore, StoreImpl>();
-            services.AddSingleton<IHookParser, HookParserImpl>();
             services.AddSingleton<IGithubBot, GithubBot>();
         }
 

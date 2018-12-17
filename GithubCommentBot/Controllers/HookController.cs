@@ -1,22 +1,18 @@
 ﻿using System.Threading.Tasks;
-using System.IO;
 using GithubCommentBot.Bot;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using GithubCommentBot.HookParser;
 using GithubCommentBot.Models;
 using GithubCommentBot.Dto;
-using Newtonsoft.Json;
 
 namespace GithubCommentBot.Controllers
 {
     [Route("api/[controller]")]
     public class HookController : Controller
     {
-        public HookController(IGithubBot bot, IHookParser parser, ILogger<HookController> logger)
+        public HookController(IGithubBot bot, ILogger<HookController> logger)
         {
             _bot = bot;
-            _parser = parser;
             _logger = logger;
         }
 
@@ -63,7 +59,6 @@ namespace GithubCommentBot.Controllers
 
 
         private readonly IGithubBot _bot;
-        private readonly IHookParser _parser;
         private readonly ILogger<HookController> _logger;
     }
 }
